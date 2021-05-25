@@ -1,0 +1,31 @@
+server:
+  port: 8085
+spring:
+  application:
+    name: reservation-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/reservation
+    username: postgres
+    password: root
+  flyway:
+    locations: classpath:db/migration
+    schemas: public
+    enabled: true
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8083/eureka
+hotel-service:
+  name: hotel-service
+  path-hotel: /api/hotel
+  paht-room: /api/room
+guest-service:
+  name: guest-service
+  path: /api/guest
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: basic
