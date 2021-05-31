@@ -1,5 +1,6 @@
 package com.example.reservationservice.exception;
 
+import brave.Tracer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
@@ -20,11 +21,14 @@ public class GlobalExceptionHandler {
   @Autowired
   ReservationServiceConverter converter;
 
+  @Autowired
+  private Tracer tracer;
+
   @ExceptionHandler(ReservationServiceException.class)
   public ResponseEntity<Object> handleHotelException(ReservationServiceException exception) {
     log.error("HotelException", exception);
     return new ResponseEntity<>(
-        converter.toJsonNode(exception.getReservationExceptionResponse(), StringUtils.EMPTY),
+        converter.toJsonNode(exception.getReservationExceptionResponse(), StringUtils.EMPTY, tracer),
         new HttpHeaders(),
         exception.getReservationExceptionResponse().getHttpStatus()
     );
@@ -41,7 +45,8 @@ public class GlobalExceptionHandler {
                                  .getBindingResult()
                                  .getAllErrors()
                                  .get(NumberUtils.INTEGER_ZERO)
-                                 .getDefaultMessage()
+                                 .getDefaultMessage(),
+                             tracer
         ),
         new HttpHeaders(),
         HttpStatus.BAD_REQUEST);
@@ -50,7 +55,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(FeignException.class)
   public ResponseEntity<Object> feignException(FeignException e) throws JsonProcessingException {
     log.error("FeignException {}", e);
-    var errorMessageJson = converter.toJsonNode(e.getMessage());
+    var errorMessageJson = converter.toJsonNode(e.getMessage(), tracer);
     return new ResponseEntity<>(
         errorMessageJson, new HttpHeaders(), HttpStatus.resolve(e.status()));
   }
