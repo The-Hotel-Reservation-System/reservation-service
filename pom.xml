@@ -18,6 +18,7 @@
 		<apache-common-lang.version>3.12.0</apache-common-lang.version>
 		<springdoc-openapi-ui.version>1.5.2</springdoc-openapi-ui.version>
 		<spring-cloud-dependencies.version>2020.0.2</spring-cloud-dependencies.version>
+		<resilience4j.version>1.7.0</resilience4j.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -78,6 +79,16 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-zipkin</artifactId>
 			<version>2.2.8.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>io.github.resilience4j</groupId>
+			<artifactId>resilience4j-spring-boot2</artifactId>
+			<version>${resilience4j.version}</version>
 		</dependency>
 	</dependencies>
 

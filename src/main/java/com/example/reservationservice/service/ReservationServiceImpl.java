@@ -104,6 +104,10 @@ public class ReservationServiceImpl implements ReservationService {
     return availableRoom.get(0);
   }
 
+  private List<RoomDto> handleErrorCase() {
+    return List.of();
+  }
+
   private BigInteger calculateStayDuration(Instant startDate, Instant endDate) {
     return BigInteger.valueOf(ChronoUnit.DAYS.between(startDate, endDate) + 1);
   }

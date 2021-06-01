@@ -36,3 +36,92 @@ feign:
         connectTimeout: 5000
         readTimeout: 5000
         loggerLevel: basic
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+        recordExceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - java.util.concurrent.TimeoutException
+          - java.io.IOException
+        ignoreExceptions:
+          - com.example.reservationservice.exception.ReservationServiceException
+      shared:
+        slidingWindowSize: 100
+        permittedNumberOfCallsInHalfOpenState: 30
+        waitDurationInOpenState: 1s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+        ignoreExceptions:
+          - com.example.reservationservice.exception.ReservationServiceException
+    instances:
+      auth:
+        baseConfig: default
+  retry:
+    configs:
+      default:
+        maxRetryAttempts: 3
+        waitDuration: 100
+        retryExceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - java.util.concurrent.TimeoutException
+          - java.io.IOException
+        ignoreExceptions:
+          - com.example.reservationservice.exception.ReservationServiceException
+    instances:
+      auth:
+        baseConfig: default
+  bulkhead:
+    configs:
+      default:
+        maxConcurrentCalls: 100
+        maxWaitDuration: 10ms
+      auth:
+        baseConfig: default
+  thread-pool-bulkhead:
+    configs:
+      default:
+        maxThreadPoolSize: 4
+        coreThreadPoolSize: 2
+        queueCapacity: 2
+    instances:
+      auth:
+        baseConfig: default
+  ratelimiter:
+    configs:
+      default:
+        registerHealthIndicator: false
+        limitForPeriod: 10
+        limitRefreshPeriod: 1s
+        timeoutDuration: 0
+        eventConsumerBufferSize: 100
+    instances:
+      auth:
+        baseConfig: default
+  timelimiter:
+    configs:
+      default:
+        cancelRunningFuture: false
+        timeoutDuration: 2s
+    instances:
+      auth:
+        baseConfig: default
