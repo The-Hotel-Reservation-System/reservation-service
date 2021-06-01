@@ -2,6 +2,11 @@ package com.example.reservationservice.controller;
 
 import com.example.reservationservice.model.dto.ReservationDto;
 import com.example.reservationservice.model.request.CreateReservationRequest;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.retry.annotation.Retry;
+import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -17,6 +22,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.List;
 import javax.validation.Valid;
 
+
+@CircuitBreaker(name = "reservation")
+@Retry(name = "reservation")
+@RateLimiter(name = "reservation")
+@TimeLimiter(name = "reservation")
+@Bulkhead(name = "reservation")
 @RequestMapping("/api/reservation")
 public interface ReservationController {
   /**
