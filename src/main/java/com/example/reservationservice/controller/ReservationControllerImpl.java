@@ -35,4 +35,5 @@ public class ReservationControllerImpl implements ReservationController {
   public ResponseEntity<List<ReservationDto>> getReservationByGuestId(String guestId) {
     return ResponseEntity.ok(reservationService.getReservationByGuestId(guestId));
   }
+
 }
