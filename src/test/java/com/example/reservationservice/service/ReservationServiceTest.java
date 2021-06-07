@@ -4,6 +4,7 @@ import com.example.reservationservice.connector.GuestService;
 import com.example.reservationservice.connector.HotelService;
 import com.example.reservationservice.exception.ReservationServiceException;
 import com.example.reservationservice.model.ReservationStatus;
+import com.example.reservationservice.model.dto.GuestDto;
 import com.example.reservationservice.model.dto.ReservationDto;
 import com.example.reservationservice.model.dto.RoomDto;
 import com.example.reservationservice.model.entity.Reservation;
@@ -23,7 +24,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
 
 @ExtendWith(SpringExtension.class)
 class ReservationServiceTest {
@@ -43,7 +43,10 @@ class ReservationServiceTest {
   private String ROOM_TYPE = "ROOM_TYPE";
   private String TOTAL = "TOTAL";
   private String HOTEL_NAME = "Hotel name";
-
+  private final String EMAIL = "test@gmail.com";
+  private final String NAME = "Name";
+  private final String PHONE = "1234567890";
+  private GuestDto guestDto;
   @Mock
   ReservationRepository reservationRepository;
   @Mock
@@ -59,6 +62,7 @@ class ReservationServiceTest {
     createReservationRequest = buildReservationRequest();
     roomsDto.add(buildRoomDtoModel());
     reservationsModel.add(buildReservationDto());
+    guestDto = buildGuestDto();
   }
 
   @Test
@@ -92,6 +96,7 @@ class ReservationServiceTest {
   void createReservation_shouldWork() {
     List<String> ids = new ArrayList<>();
     ids.add(ID.toString());
+    Mockito.when(guestService.getGuestById(Mockito.any(String.class))).thenReturn(GuestDto.builder().build());
     Mockito.when(hotelService.getRoomsByHotelId(Mockito.any(String.class))).thenReturn(roomsDto);
     Mockito.when(reservationRepository.getRoomBookedFromStartDateToEndDate(Mockito.any(Instant.class),
                                                                            Mockito.any(Instant.class),
@@ -101,6 +106,19 @@ class ReservationServiceTest {
     Mockito.when(reservationRepository.save(Mockito.any(Reservation.class))).thenReturn(reservation);
     ReservationDto reservationDto = reservationService.createReservation(createReservationRequest);
     Assertions.assertEquals(reservationDtoModel, reservationDto);
+    Assertions.assertEquals(ID, guestDto.getId());
+    Assertions.assertEquals(NAME, guestDto.getName());
+    Assertions.assertEquals(PHONE, guestDto.getPhone());
+    Assertions.assertEquals(EMAIL, guestDto.getEmail());
+
+  }
+
+  @Test
+  void createReservation_GuestNotFound_shouldWork() {
+    List<String> ids = new ArrayList<>();
+    ids.add(ID.toString());
+    Mockito.when(guestService.getGuestById(Mockito.any(String.class))).thenReturn(null);
+    Assertions.assertThrows(ReservationServiceException.class, () -> reservationService.createReservation(createReservationRequest));
   }
 
   @Test
@@ -108,6 +126,7 @@ class ReservationServiceTest {
     List<String> ids = new ArrayList<>();
     ids.add(ID.toString());
     var temp = reservation;
+    Mockito.when(guestService.getGuestById(Mockito.any(String.class))).thenReturn(GuestDto.builder().build());
     Mockito.when(hotelService.getRoomsByHotelId(Mockito.any(String.class))).thenReturn(roomsDto);
     Mockito.when(reservationRepository.getRoomBookedFromStartDateToEndDate(Mockito.any(Instant.class),
                                                                            Mockito.any(Instant.class),
@@ -120,6 +139,7 @@ class ReservationServiceTest {
 
   @Test
   void createReservation_HotelNotFoundAvailable_shouldWork() {
+    Mockito.when(guestService.getGuestById(Mockito.any(String.class))).thenReturn(GuestDto.builder().build());
     Mockito.when(hotelService.getRoomsByHotelId(Mockito.any(String.class))).thenThrow(FeignException.class);
     Assertions.assertThrows(FeignException.class, () -> reservationService.createReservation(createReservationRequest));
   }
@@ -131,6 +151,15 @@ class ReservationServiceTest {
     Mockito.when(reservationRepository.findByGuestId(Mockito.anyString())).thenReturn(list);
     var reservations = reservationService.getReservationByGuestId("123456789");
     Assertions.assertEquals(reservationsModel, reservations);
+  }
+
+  private GuestDto buildGuestDto() {
+    return GuestDto.builder()
+        .id(ID)
+        .phone(PHONE)
+        .name(NAME)
+        .email(EMAIL)
+        .build();
   }
 
   private RoomDto buildRoomDtoModel() {
@@ -183,6 +212,5 @@ class ReservationServiceTest {
         .status(ReservationStatus.BOOKED.getStatus())
         .build();
   }
-
 
 }

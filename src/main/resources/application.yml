@@ -24,9 +24,11 @@ eureka:
       defaultZone: http://localhost:8083/eureka
 hotel-service:
   name: hotel-service
+  host: localhost:8082
   path-hotel: /api/hotel
   paht-room: /api/room
 guest-service:
+  host: localhost:8081
   name: guest-service
   path: /api/guest
 feign:

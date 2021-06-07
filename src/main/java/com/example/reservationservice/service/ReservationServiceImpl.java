@@ -10,6 +10,7 @@ import com.example.reservationservice.model.dto.RoomDto;
 import com.example.reservationservice.model.entity.Reservation;
 import com.example.reservationservice.model.request.CreateReservationRequest;
 import com.example.reservationservice.repository.ReservationRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +40,7 @@ public class ReservationServiceImpl implements ReservationService {
 
   @Override
   public ReservationDto getReservation(String reservationId) {
+    log.info("Get reservation {}", reservationId);
     return reservationRepository.findById(new BigInteger(reservationId))
         .map(this::convertReservationToReservationDto)
         .orElseThrow(() -> {
@@ -49,6 +51,7 @@ public class ReservationServiceImpl implements ReservationService {
 
   @Override
   public Boolean deleteReservation(String reservationId) {
+    log.info("Delete reservation {}", reservationId);
     return reservationRepository.findById(new BigInteger(reservationId))
         .map(reservation -> {
           reservationRepository.delete(reservation);
@@ -60,9 +63,14 @@ public class ReservationServiceImpl implements ReservationService {
         });
   }
 
+  @CircuitBreaker(name = "room", fallbackMethod = "roomFallback")
   @Override
   public ReservationDto createReservation(CreateReservationRequest request) {
+    log.info("Create reservation with request {}", request);
     var guest = guestService.getGuestById(request.getGuestId().toString());
+    if (guest == null) {
+      throw new ReservationServiceException(ReservationExceptionResponse.GUEST_NOT_FOUND);
+    }
     var room = Optional.ofNullable(getAvailableRoom(request))
         .orElseThrow(() -> {
           log.error("No room is available with request {}", request);
@@ -72,8 +80,14 @@ public class ReservationServiceImpl implements ReservationService {
     return convertReservationToReservationDto(reservationRepository.save(reservation));
   }
 
+  public ReservationDto roomFallback(CreateReservationRequest request, Throwable t) {
+    log.info("Room fallback: {}", request);
+    return null;
+  }
+
   @Override
   public List<ReservationDto> getReservationByGuestId(String guestId) {
+    log.info("Get reservation by guest {}", guestId);
     return reservationRepository.findByGuestId(guestId)
         .stream()
         .map(this::convertReservationToReservationDto)
@@ -102,10 +116,6 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     return availableRoom.get(0);
-  }
-
-  private List<RoomDto> handleErrorCase() {
-    return List.of();
   }
 
   private BigInteger calculateStayDuration(Instant startDate, Instant endDate) {

@@ -8,7 +8,8 @@ public enum ReservationExceptionResponse {
   RESERVATION_NOT_FOUND(HttpStatus.NOT_FOUND, "3000", "Reservation is not found."),
   UNHANDLED_EXCEPTION(HttpStatus.BAD_REQUEST, "3001", "Unhandled exception."),
   NO_ROOM_AVAILABLE(HttpStatus.NOT_FOUND, "3002", "No room is available."),
-  INVALID_ARGUMENT(HttpStatus.BAD_REQUEST, "3003", "");
+  INVALID_ARGUMENT(HttpStatus.BAD_REQUEST, "3003", ""),
+  GUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "3004", "Guest is not found.");
 
   ReservationExceptionResponse(HttpStatus httpStatus, String errorCode, String errorMessage) {
     this.httpStatus = httpStatus;

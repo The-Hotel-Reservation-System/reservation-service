@@ -23,11 +23,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 
-@CircuitBreaker(name = "reservation")
-@Retry(name = "reservation")
-@RateLimiter(name = "reservation")
-@TimeLimiter(name = "reservation")
-@Bulkhead(name = "reservation")
+
 @RequestMapping("/api/reservation")
 public interface ReservationController {
   /**
@@ -82,4 +78,5 @@ public interface ReservationController {
    */
   @GetMapping("/guest/{guestId}")
   ResponseEntity<List<ReservationDto>> getReservationByGuestId(String guestId);
+
 }

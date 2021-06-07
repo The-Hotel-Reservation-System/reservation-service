@@ -9,6 +9,4 @@ public class RoomDto {
   private String id;
   private String type;
   private String price;
-  private String status;
-  private String hotel;
 }

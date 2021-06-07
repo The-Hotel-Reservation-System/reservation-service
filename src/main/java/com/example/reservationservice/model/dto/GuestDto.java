@@ -2,15 +2,13 @@ package com.example.reservationservice.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 
 import java.math.BigInteger;
 
 @Builder
-@Data
-@NoArgsConstructor
 @AllArgsConstructor
+@Getter
 public class GuestDto {
   private BigInteger id;
   private String name;

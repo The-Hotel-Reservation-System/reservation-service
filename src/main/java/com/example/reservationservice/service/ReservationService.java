@@ -1,6 +1,7 @@
 package com.example.reservationservice.service;
 
 import com.example.reservationservice.model.dto.ReservationDto;
+import com.example.reservationservice.model.dto.RoomDto;
 import com.example.reservationservice.model.request.CreateReservationRequest;
 
 import java.util.List;
@@ -14,4 +15,5 @@ public interface ReservationService {
   ReservationDto createReservation(CreateReservationRequest request);
 
   List<ReservationDto> getReservationByGuestId(String guestId);
+
 }

@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
-@FeignClient(value = "${hotel-service.name}", path = "${hotel-service.path-hotel}")
+@FeignClient(value = "${hotel-service.name}", url = "${hotel-service.host}", path = "${hotel-service.path-hotel}")
 public interface HotelService {
   @GetMapping("/{hotelId}/room")
   List<RoomDto> getRoomsByHotelId(@PathVariable String hotelId);
